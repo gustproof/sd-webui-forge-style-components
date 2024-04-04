@@ -2,6 +2,8 @@
 
 Style control for SDXL anime models. A Forge extension.
 
+**Links**: [Forge extension](https://github.com/gustproof/sd-webui-forge-style-components) | [ComfyUI nodes](https://github.com/gustproof/ComfyUI_IPAdapter_plus_Style_Components) | [Civitai](https://civitai.com/models/339104)
+
 ![](assets/forge-screenshot.jpg)
 
 ## What is Style Components
