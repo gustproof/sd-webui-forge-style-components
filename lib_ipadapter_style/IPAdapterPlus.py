@@ -282,7 +282,6 @@ class IPAdapter(nn.Module):
             self.image_proj_model = self.init_proj_plus()
         else:
             self.image_proj_model = self.init_proj()
-
         self.image_proj_model.load_state_dict(ipadapter_model["image_proj"])
         self.ip_layers = To_KV(ipadapter_model["ip_adapter"])
 
@@ -324,7 +323,7 @@ class IPAdapter(nn.Module):
         else:
             image_proj_model = MLPProjModelFaceId(
                 cross_attention_dim=self.cross_attention_dim,
-                id_embeddings_dim=768,
+                id_embeddings_dim=self.clip_embeddings_dim,
                 num_tokens=self.clip_extra_context_tokens,
             )
         return image_proj_model
@@ -345,10 +344,6 @@ class IPAdapter(nn.Module):
     def get_image_embeds(self, clip_embed, clip_embed_zeroed):
         image_prompt_embeds = self.image_proj_model(clip_embed)
         uncond_image_prompt_embeds = self.image_proj_model(clip_embed_zeroed)
-        should_pad =0
-        if should_pad:
-            pad = lambda x: torch.nn.functional.pad(x, (0,0,0,1,0,0))
-            image_prompt_embeds, uncond_image_prompt_embeds = map(pad, [image_prompt_embeds, uncond_image_prompt_embeds])
         return image_prompt_embeds, uncond_image_prompt_embeds
 
     def get_image_embeds_faceid_plus(self, face_embed, clip_embed, s_scale, shortcut):
@@ -445,7 +440,6 @@ class CrossAttentionPatch:
             else:
                 v_cond = ipadapter.ip_layers.to_kvs[self.v_key](cond).repeat(batch_prompt, 1, 1)
                 v_uncond = ipadapter.ip_layers.to_kvs[self.v_key](uncond).repeat(batch_prompt, 1, 1)
-
             if weight_type.startswith("linear"):
                 ip_v = torch.cat([(v_cond, v_uncond)[i] for i in cond_or_uncond], dim=0) * weight
             else:
